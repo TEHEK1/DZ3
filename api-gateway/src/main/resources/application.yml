@@ -1,0 +1,19 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: orders-service
+          uri: http://orders-service:8080
+          predicates:
+            - Path=/orders/**
+        - id: payments-service
+          uri: http://payments-service:8080
+          predicates:
+            - Path=/accounts/**
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO 
