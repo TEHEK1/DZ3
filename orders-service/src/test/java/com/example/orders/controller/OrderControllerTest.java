@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 
 import java.math.BigDecimal;
@@ -29,8 +28,6 @@ class OrderControllerTest {
 
     @MockBean
     OrderService orderService;
-    @MockBean
-    RabbitTemplate rabbitTemplate;
 
     @Test
     void createOrderEndpoint() throws Exception {

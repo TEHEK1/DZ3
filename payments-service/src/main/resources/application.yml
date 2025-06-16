@@ -13,11 +13,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  rabbitmq:
-    host: ${SPRING_RABBITMQ_HOST:localhost}
-    port: 5672
-    username: guest
-    password: guest
+  # rabbitmq:
+  #   host: ${SPRING_RABBITMQ_HOST:localhost}
+  #   port: 5672
+  #   username: guest
+  #   password: guest
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 logging:
   level:
     org.springframework: INFO 

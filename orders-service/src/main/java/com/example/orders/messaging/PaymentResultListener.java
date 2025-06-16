@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +18,7 @@ public class PaymentResultListener {
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
 
-    @RabbitListener(queues = "payment-results")
+    @KafkaListener(topics = "payment-results", groupId = "orders-service")
     public void handlePaymentResult(String message) {
         try {
             PaymentResultEvent event = objectMapper.readValue(message, PaymentResultEvent.class);

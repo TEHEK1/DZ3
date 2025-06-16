@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,11 +29,11 @@ public class PaymentRequestListener {
     private final InboxMessageRepository inboxRepository;
     private final OutboxMessageRepository outboxRepository;
 
-    @RabbitListener(queues = "payment-requests")
+    @KafkaListener(topics = "payment-requests", groupId = "payments-service")
     @Transactional
-    public void onPaymentRequest(String message, org.springframework.amqp.core.Message amqpMessage) {
+    public void onPaymentRequest(String message, org.apache.kafka.clients.consumer.ConsumerRecord<String, String> record) {
         try {
-            String messageId = amqpMessage.getMessageProperties().getMessageId();
+            String messageId = record.headers().lastHeader("messageId") != null ? new String(record.headers().lastHeader("messageId").value()) : null;
             if (messageId == null) {
                 messageId = UUID.randomUUID().toString();
             }

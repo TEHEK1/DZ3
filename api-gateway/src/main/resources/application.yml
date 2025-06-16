@@ -10,10 +10,24 @@ spring:
           uri: http://orders-service:8080
           predicates:
             - Path=/orders/**
+          filters:
+            - StripPrefix=1
         - id: payments-service
           uri: http://payments-service:8080
           predicates:
             - Path=/accounts/**
+          filters:
+            - StripPrefix=1
+
 logging:
   level:
-    org.springframework.cloud.gateway: INFO 
+    org.springframework.cloud.gateway: INFO
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: Orders
+        url: /orders/v3/api-docs
+      - name: Payments
+        url: /accounts/v3/api-docs 

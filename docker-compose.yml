@@ -1,17 +1,35 @@
 version: "3.9"
 
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
     networks:
       - shopnet
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - shopnet
+    healthcheck:
+      test: ["CMD", "bash", "-c", "kafka-topics --bootstrap-server localhost:9092 --list | grep -q ."]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
 
   postgres-orders:
     image: postgres:15
@@ -38,13 +56,15 @@ services:
   orders-service:
     build: ./orders-service
     depends_on:
-      - rabbitmq
-      - postgres-orders
+      kafka:
+        condition: service_healthy
+      postgres-orders:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-orders:5432/orders_db
       SPRING_DATASOURCE_USERNAME: orders
       SPRING_DATASOURCE_PASSWORD: orders
-      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
       - "8081:8080"
     networks:
@@ -53,13 +73,15 @@ services:
   payments-service:
     build: ./payments-service
     depends_on:
-      - rabbitmq
-      - postgres-payments
+      kafka:
+        condition: service_healthy
+      postgres-payments:
+        condition: service_started
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-payments:5432/payments_db
       SPRING_DATASOURCE_USERNAME: payments
       SPRING_DATASOURCE_PASSWORD: payments
-      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     ports:
       - "8082:8080"
     networks:
