@@ -17,7 +17,6 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    // For demonstration we get userId from header; in real scenario we have auth context.
     private Long getUserIdFromHeader(String userIdHeader) {
         return Long.parseLong(userIdHeader);
     }

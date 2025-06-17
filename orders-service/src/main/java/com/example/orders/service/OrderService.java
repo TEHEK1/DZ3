@@ -38,7 +38,6 @@ public class OrderService {
 
         order = orderRepository.save(order);
 
-        // prepare outbox message
         PaymentRequestedEvent event = new PaymentRequestedEvent(order.getId(), userId, order.getAmount());
         try {
             String payload = objectMapper.writeValueAsString(event);

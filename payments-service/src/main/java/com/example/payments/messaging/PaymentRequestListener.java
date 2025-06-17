@@ -37,7 +37,6 @@ public class PaymentRequestListener {
             if (messageId == null) {
                 messageId = UUID.randomUUID().toString();
             }
-            // Idempotency check
             if (inboxRepository.findByMessageId(messageId).isPresent()) {
                 log.info("Duplicate message {} ignored", messageId);
                 return;
